@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:tx="http://www.springframework.org/schema/tx" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:mongo="http://www.springframework.org/schema/data/mongo"    
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/data/mongo     
+        http://www.springframework.org/schema/data/mongo/spring-mongo.xsd ">
+
+	<!-- 该 BeanPostProcessor 将自动起作用，对标注 @Autowired 的 Bean 进行自动注入 -->
+    <bean class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor"/>
+    
+    <bean id="oracledataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close" >
+    	<property name="driverClassName" value="oracle.jdbc.OracleDriver" />
+    	<property name="url" value="jdbc:oracle:thin:@192.168.5.100:1521:width" />
+    	<property name="username" value="sgdb" />
+    	<property name="password" value="sgdb0911" />
+    	
+    	<property name="filters" value="stat" />
+    	<property name="initialSize" value="3" />
+    	<property name="minIdle" value="1" />
+    	<property name="maxActive" value="5" />
+    	<!-- 配置获取连接等待超时的时间 -->
+        <property name="maxWait" value="60000" />
+        <!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+        <property name="timeBetweenEvictionRunsMillis" value="60000" />
+        <!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+        <property name="minEvictableIdleTimeMillis" value="300000" />
+        <!-- 检测连接是否有效的SQL -->
+        <property name="validationQuery" value="SELECT 1 FROM dual" />
+        <property name="testWhileIdle" value="true" />
+        <property name="testOnBorrow" value="false" />
+        <property name="testOnReturn" value="false" />
+        <property name="poolPreparedStatements" value="true" />
+        <property name="maxPoolPreparedStatementPerConnectionSize" value="20" />
+    </bean>
+    
+    <bean id="oracleTemplate" class="org.springframework.jdbc.core.JdbcTemplate" >
+    	<property name="dataSource" ref="oracledataSource" />
+    </bean>
+    
+    <context:component-scan base-package="com.s.**" />
+    
+    <mongo:mongo host="192.168.5.117" port="27017" />
+    <bean id="mongoTemplate" class="org.springframework.data.mongodb.core.MongoTemplate" >
+    	<constructor-arg name="mongo" ref="mongo"/>
+    	<constructor-arg name="databaseName" value="imageprocess100"/>
+    	<property name="writeResultChecking" value="EXCEPTION" />
+    </bean>
+
+</beans>
